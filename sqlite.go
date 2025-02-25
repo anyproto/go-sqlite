@@ -44,7 +44,7 @@ var initOnce sync.Once
 
 func initlib(tls *libc.TLS) {
 	initOnce.Do(func() {
-		if os.Getenv("SQLITE_SMALL_MALLOC") == "1" {
+		//if os.Getenv("SQLITE_SMALL_MALLOC") == "1" {
 			enabledInt := int32(1)
 			varArgs := libc.NewVaList(enabledInt)
 			if varArgs == 0 {
@@ -60,7 +60,7 @@ func initlib(tls *libc.TLS) {
 			if err := res.ToError(); err != nil {
 				panic(fmt.Errorf("sqlite: small malloc: %v", err))
 			}
-		}
+		//}
 		lib.Xsqlite3_initialize(tls)
 	})
 }
