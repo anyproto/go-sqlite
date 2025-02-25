@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
-	"os"
+	//"os"
 	"unsafe"
 
 	"modernc.org/libc"
