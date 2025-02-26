@@ -20,6 +20,8 @@ package sqlite
 import (
 	"bytes"
 	"fmt"
+	"os"
+	"strconv"
 	"sync"
 	"time"
 	"unsafe"
@@ -40,9 +42,78 @@ const Version = lib.SQLITE_VERSION
 const VersionNumber = lib.SQLITE_VERSION_NUMBER
 
 var initOnce sync.Once
+var pageCacheSize int32 = 100 * 1024 * 1024 // 100 MB
 
 func initlib(tls *libc.TLS) {
 	initOnce.Do(func() {
+		if v := os.Getenv("SQLITE_PAGE_CACHE"); v != "" {
+			valInt, err := strconv.Atoi(v)
+			if err != nil {
+				panic(fmt.Errorf("sqlite: invalid SQLITE_PAGE_CACHE: %v", err))
+			}
+			pageCacheSize = int32(valInt)
+		}
+
+		if pageCacheSize > 0 {
+			//allocate 100mb
+			p, err := malloc(tls, types.Size_t(pageCacheSize))
+			if err != nil {
+				panic(err)
+			}
+
+			var headerSize int32 // This will receive the header size from SQLite
+
+			// Create a va_list containing the pointer to headerSize.
+			// Unlike SQLITE_CONFIG_SMALL_MALLOC (which takes an int value),
+			// SQLITE_CONFIG_PCACHE_HDRSZ expects a pointer to an int.
+			varArgs := libc.NewVaList(uintptr(unsafe.Pointer(&headerSize)))
+			if varArgs == 0 {
+				panic(fmt.Errorf("sqlite: get page cache header size: cannot allocate memory"))
+			}
+			defer libc.Xfree(tls, varArgs)
+
+			// Call sqlite3_config with SQLITE_CONFIG_PCACHE_HDRSZ.
+			res := ResultCode(lib.Xsqlite3_config(
+				tls,
+				lib.SQLITE_CONFIG_PCACHE_HDRSZ,
+				varArgs,
+			))
+			if err := res.ToError(); err != nil {
+				panic(fmt.Errorf("sqlite: get page cache header size: %v", err))
+			}
+
+			var sqlitePageSize int32 = 4096            // or your chosen SQLite page size
+			var sz int32 = sqlitePageSize + headerSize // 4104 bytes
+			var n int32 = pageCacheSize / sz           // number of cache lines
+
+			list := libc.NewVaList(p, sz, n)
+			res = ResultCode(lib.Xsqlite3_config(
+				tls,
+				lib.SQLITE_CONFIG_PAGECACHE,
+				list,
+			))
+			if err := res.ToError(); err != nil {
+				panic(fmt.Errorf("sqlite: SQLITE_CONFIG_PAGECACHE: %v", err))
+			}
+
+		}
+		if os.Getenv("SQLITE_SMALL_MALLOC") == "1" {
+			enabledInt := int32(1)
+			varArgs := libc.NewVaList(enabledInt)
+			if varArgs == 0 {
+				panic(fmt.Errorf("sqlite: set small malloc: cannot allocate memory"))
+			}
+			defer libc.Xfree(tls, varArgs)
+
+			res := ResultCode(lib.Xsqlite3_config(
+				tls,
+				lib.SQLITE_CONFIG_SMALL_MALLOC,
+				varArgs,
+			))
+			if err := res.ToError(); err != nil {
+				panic(fmt.Errorf("sqlite: small malloc: %v", err))
+			}
+		}
 		lib.Xsqlite3_initialize(tls)
 	})
 }
