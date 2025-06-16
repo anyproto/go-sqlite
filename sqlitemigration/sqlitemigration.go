@@ -14,8 +14,8 @@ import (
 	"sync"
 	"time"
 
-	"zombiezen.com/go/sqlite"
-	"zombiezen.com/go/sqlite/sqlitex"
+	"github.com/anyproto/go-sqlite"
+	"github.com/anyproto/go-sqlite/sqlitex"
 )
 
 // Schema defines the migrations for the application.

@@ -24,7 +24,7 @@ import (
 	"reflect"
 	"strings"
 
-	"zombiezen.com/go/sqlite"
+	"github.com/anyproto/go-sqlite"
 )
 
 // ExecOptions is the set of optional arguments executing a statement.

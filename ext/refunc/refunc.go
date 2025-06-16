@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"zombiezen.com/go/sqlite"
+	"github.com/anyproto/go-sqlite"
 )
 
 // Impl is the implementation of the REGEXP function.

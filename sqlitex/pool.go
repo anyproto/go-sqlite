@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"sync"
 
-	"zombiezen.com/go/sqlite"
+	"github.com/anyproto/go-sqlite"
 )
 
 // PoolOptions is the set of optional arguments to [NewPool].

@@ -10,9 +10,9 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/anyproto/go-sqlite"
+	"github.com/anyproto/go-sqlite/sqlitex"
 	"github.com/google/go-cmp/cmp"
-	"zombiezen.com/go/sqlite"
-	"zombiezen.com/go/sqlite/sqlitex"
 )
 
 func TestPool(t *testing.T) {

@@ -58,8 +58,7 @@ make sure that you are building for one of the [supported architectures][].
 import (
   "fmt"
 
-  "zombiezen.com/go/sqlite"
-  "zombiezen.com/go/sqlite/sqlitex"
+  "github.com/anyproto/go-sqlite"  "github.com/anyproto/go-sqlite/sqlitex"
 )
 
 // ...

@@ -6,7 +6,7 @@ package sqlitex
 import (
 	"errors"
 
-	"zombiezen.com/go/sqlite"
+	"github.com/anyproto/go-sqlite"
 )
 
 var (

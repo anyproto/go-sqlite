@@ -6,7 +6,7 @@ package refunc
 import (
 	"testing"
 
-	"zombiezen.com/go/sqlite"
+	"github.com/anyproto/go-sqlite"
 )
 
 func TestImpl(t *testing.T) {

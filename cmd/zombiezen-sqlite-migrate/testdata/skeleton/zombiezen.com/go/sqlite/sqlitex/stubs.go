@@ -7,7 +7,7 @@ package sqlitex
 import (
 	"os"
 
-	"zombiezen.com/go/sqlite"
+	"github.com/anyproto/go-sqlite"
 )
 
 type ExecOptions struct {

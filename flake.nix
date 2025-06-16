@@ -1,5 +1,5 @@
 {
-  description = "zombiezen.com/go/sqlite";
+  description = "github.com/anyproto/go-sqlite";
 
   inputs = {
     nixpkgs.url = "nixpkgs";

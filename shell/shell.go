@@ -12,11 +12,11 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/anyproto/go-sqlite"
+	"github.com/anyproto/go-sqlite/sqlitex"
 	"github.com/chzyer/readline"
 	"modernc.org/libc"
 	lib "modernc.org/sqlite/lib"
-	"zombiezen.com/go/sqlite"
-	"zombiezen.com/go/sqlite/sqlitex"
 )
 
 const (

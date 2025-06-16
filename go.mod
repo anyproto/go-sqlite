@@ -1,4 +1,4 @@
-module zombiezen.com/go/sqlite
+module github.com/anyproto/go-sqlite
 
 go 1.23.0
 

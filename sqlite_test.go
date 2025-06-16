@@ -31,9 +31,9 @@ import (
 
 	"io"
 
+	"github.com/anyproto/go-sqlite"
+	"github.com/anyproto/go-sqlite/sqlitex"
 	"modernc.org/libc"
-	"zombiezen.com/go/sqlite"
-	"zombiezen.com/go/sqlite/sqlitex"
 )
 
 func TestConn(t *testing.T) {

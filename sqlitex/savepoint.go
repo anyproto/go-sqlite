@@ -22,7 +22,7 @@ import (
 	"runtime"
 	"strings"
 
-	"zombiezen.com/go/sqlite"
+	"github.com/anyproto/go-sqlite"
 )
 
 // Save creates a named SQLite transaction using SAVEPOINT.

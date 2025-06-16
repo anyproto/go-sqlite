@@ -3,7 +3,7 @@
 
 package main
 
-import "zombiezen.com/go/sqlite"
+import "github.com/anyproto/go-sqlite"
 
 func main() {
 	var res sqlite.ResultCode = sqlite.ResultOK

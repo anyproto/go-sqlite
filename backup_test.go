@@ -6,9 +6,9 @@ package sqlite_test
 import (
 	"testing"
 
+	"github.com/anyproto/go-sqlite"
+	"github.com/anyproto/go-sqlite/sqlitex"
 	"github.com/google/go-cmp/cmp"
-	"zombiezen.com/go/sqlite"
-	"zombiezen.com/go/sqlite/sqlitex"
 )
 
 func TestBackup(t *testing.T) {

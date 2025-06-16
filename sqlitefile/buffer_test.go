@@ -24,8 +24,8 @@ import (
 	"testing"
 
 	"crawshaw.io/iox/ioxtest"
-	"zombiezen.com/go/sqlite"
-	"zombiezen.com/go/sqlite/sqlitex"
+	"github.com/anyproto/go-sqlite"
+	"github.com/anyproto/go-sqlite/sqlitex"
 )
 
 var _ interface {

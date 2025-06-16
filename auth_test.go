@@ -6,7 +6,7 @@ package sqlite_test
 import (
 	"testing"
 
-	"zombiezen.com/go/sqlite"
+	"github.com/anyproto/go-sqlite"
 )
 
 func TestSetAuthorizer(t *testing.T) {

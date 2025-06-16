@@ -10,7 +10,7 @@ package generateseries
 import (
 	"fmt"
 
-	"zombiezen.com/go/sqlite"
+	"github.com/anyproto/go-sqlite"
 )
 
 // Module is a virtual table module that can be registered with [sqlite.Conn.SetModule].

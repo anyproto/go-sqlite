@@ -3,7 +3,7 @@
 
 package main
 
-import "zombiezen.com/go/sqlite/sqlitex"
+import "github.com/anyproto/go-sqlite/sqlitex"
 
 func main() {
 	_ = sqlitex.ExecuteScriptFS

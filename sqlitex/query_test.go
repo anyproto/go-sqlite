@@ -6,7 +6,7 @@ package sqlitex
 import (
 	"testing"
 
-	"zombiezen.com/go/sqlite"
+	"github.com/anyproto/go-sqlite"
 )
 
 func TestResultInt64(t *testing.T) {

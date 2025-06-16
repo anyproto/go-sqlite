@@ -89,12 +89,11 @@ const (
 	crawshaw  = "crawshaw.io/sqlite"
 	crawshawX = crawshaw + "/sqlitex"
 
-	zombiezen     = "zombiezen.com/go/sqlite"
-	zombiezenX    = zombiezen + "/sqlitex"
-	zombiezenFile = zombiezen + "/sqlitefile"
+	zombiezen = "github.com/anyproto/go-sqlite"    zombiezenX    = zombiezen + "/sqlitex"
+zombiezenFile = zombiezen + "/sqlitefile"
 
-	bass     = "zombiezen.com/go/bass/sql"
-	bassFile = "zombiezen.com/go/bass/sql/sqlitefile"
+bass = "zombiezen.com/go/bass/sql"
+bassFile = "zombiezen.com/go/bass/sql/sqlitefile"
 )
 
 var importRemaps = map[string]string{

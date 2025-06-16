@@ -26,7 +26,7 @@ func TestProcess(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	sqliteModule, err := skeletonModule("zombiezen.com/go/sqlite")
+	sqliteModule, err := skeletonModule("github.com/anyproto/go-sqlite")
 	if err != nil {
 		t.Fatal(err)
 	}

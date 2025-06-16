@@ -11,9 +11,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"zombiezen.com/go/sqlite"
-	"zombiezen.com/go/sqlite/sqlitemigration"
-	"zombiezen.com/go/sqlite/sqlitex"
+	"github.com/anyproto/go-sqlite"
+	"github.com/anyproto/go-sqlite/sqlitemigration"
+	"github.com/anyproto/go-sqlite/sqlitex"
 )
 
 func Example() {
