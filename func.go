@@ -396,6 +396,8 @@ type FunctionImpl struct {
 	// The argument Values are not valid past the return of the function.
 	Scalar func(ctx Context, args []Value) (Value, error)
 
+	AnyStore func(ctx Context, index int, value []byte) (Value, error)
+
 	// MakeAggregate is called at the beginning of an evaluation of an aggregate function.
 	MakeAggregate func(ctx Context) (AggregateFunction, error)
 
@@ -461,10 +463,10 @@ func (c *Conn) CreateFunction(name string, impl *FunctionImpl) error {
 	if impl.NArgs > 127 {
 		return fmt.Errorf("sqlite: create function %s: too many permitted arguments (%d)", name, impl.NArgs)
 	}
-	if impl.Scalar == nil && impl.MakeAggregate == nil {
+	if impl.Scalar == nil && impl.MakeAggregate == nil && impl.AnyStore == nil {
 		return fmt.Errorf("sqlite: create function %s: must specify one of Scalar or MakeAggregate", name)
 	}
-	if impl.Scalar != nil && impl.MakeAggregate != nil {
+	if (impl.Scalar != nil && impl.MakeAggregate != nil) || (impl.AnyStore != nil && impl.MakeAggregate != nil) {
 		return fmt.Errorf("sqlite: create function %s: both Scalar and MakeAggregate specified", name)
 	}
 
@@ -487,7 +489,25 @@ func (c *Conn) CreateFunction(name string, impl *FunctionImpl) error {
 		numArgs = -1
 	}
 	var res ResultCode
-	if impl.Scalar != nil {
+	if impl.AnyStore != nil {
+		xfuncs.mu.Lock()
+		id := xfuncs.ids.next()
+		xfuncs.m[id] = impl.AnyStore
+		xfuncs.mu.Unlock()
+
+		res = ResultCode(lib.Xsqlite3_create_function_v2(
+			c.tls,
+			c.conn,
+			cname,
+			int32(numArgs),
+			eTextRep,
+			id,
+			cFuncPointer(funcTrampoline),
+			0,
+			0,
+			cFuncPointer(destroyScalarFunc),
+		))
+	} else if impl.Scalar != nil {
 		xfuncs.mu.Lock()
 		id := xfuncs.ids.next()
 		xfuncs.m[id] = impl.Scalar
@@ -533,27 +553,49 @@ func (c *Conn) CreateFunction(name string, impl *FunctionImpl) error {
 
 var xfuncs = struct {
 	mu  sync.RWMutex
-	m   map[uintptr]func(Context, []Value) (Value, error)
+	m   map[uintptr]any
 	ids idGen
 }{
-	m: make(map[uintptr]func(Context, []Value) (Value, error)),
+	m: make(map[uintptr]any),
 }
 
+// funcTrampoline dispatches to the appropriate Go function registered in xfuncs,
+// supporting both Scalar (func(Context, []Value)) and AnyStore (func(Context, int, []byte)) types.
 func funcTrampoline(tls *libc.TLS, ctx uintptr, n int32, valarray uintptr) {
 	id := lib.Xsqlite3_user_data(tls, ctx)
 	xfuncs.mu.RLock()
-	x := xfuncs.m[id]
+	f := xfuncs.m[id]
 	xfuncs.mu.RUnlock()
 
-	vals := make([]Value, 0, int(n))
-	for ; len(vals) < cap(vals); valarray += uintptr(ptrSize) {
-		vals = append(vals, Value{
-			tls:       tls,
-			ptrOrType: *(*uintptr)(unsafe.Pointer(valarray)),
-		})
-	}
 	goCtx := Context{tls: tls, ptr: ctx}
-	goCtx.result(x(goCtx, vals))
+
+	switch impl := f.(type) {
+	case func(Context, []Value) (Value, error):
+		// Handle standard scalar functions
+		vals := make([]Value, 0, int(n))
+		for ; len(vals) < cap(vals); valarray += uintptr(ptrSize) {
+			vals = append(vals, Value{
+				tls:       tls,
+				ptrOrType: *(*uintptr)(unsafe.Pointer(valarray)),
+			})
+		}
+		goCtx.result(impl(goCtx, vals))
+
+	case func(Context, int, []byte) (Value, error):
+		// Handle optimized AnyStore functions
+		if n < 2 {
+			goCtx.resultError(fmt.Errorf("AnyStore requires at least two arguments (int, []byte)"))
+			return
+		}
+		v0 := Value{tls: tls, ptrOrType: *(*uintptr)(unsafe.Pointer(valarray))}.Int()
+		valarray += uintptr(ptrSize)
+		v1 := Value{tls: tls, ptrOrType: *(*uintptr)(unsafe.Pointer(valarray))}.Blob()
+		goCtx.result(impl(goCtx, v0, v1))
+
+	default:
+		// Unknown function signature
+		goCtx.resultError(fmt.Errorf("unknown function signature in funcTrampoline"))
+	}
 }
 
 func destroyScalarFunc(tls *libc.TLS, id uintptr) {
